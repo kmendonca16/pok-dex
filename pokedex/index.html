@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>att.cade o ash</title>
+
+  <style>
+
+    body {
+      background-color:  #1a1a2e;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      color: rgb(0, 0, 0);
+    }
+
+    h1 {
+      color: #8c00ff;
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+    }
+
+    .busca {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    input {
+      padding: 12px 16px;
+      font-size: 1rem;
+      border: 2px solid #ff0000;
+      border-radius: 8px;
+      background-color: #16213e;
+      color: white;
+      width: 250px;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 1rem;
+      background-color: #ff0000;
+      color: #1a1a2e;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #9900ff;
+    }
+
+    #mensagem-erro {
+      color: #ff0000;
+      font-size: 1rem;
+      margin-bottom: 16px;
+      display: none; 
+    }
+
+    #card-pokemon {
+      background-color: #16213e;
+      border: 2px solid #7707c2;
+      border-radius: 16px;
+      padding: 30px 40px;
+      text-align: center;
+      display: none; 
+    }
+
+    #card-pokemon img {
+      width: 150px;
+    }
+
+    #card-pokemon h2 {
+      text-transform: capitalize;
+      font-size: 1.8rem;
+      margin: 10px 0 5px;
+      color: #ff0505;
+    }
+
+    #card-pokemon p {
+      color: #aaa;
+      font-size: 1rem;
+      margin-bottom: 12px;
+    }
+
+    .tipo {
+      display: inline-block;
+      padding: 5px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      margin: 4px;
+      text-transform: uppercase;
+      color: white;
+    }
+
+    .fire     { background-color: #f08030; }
+    .water    { background-color: #6890f0; }
+    .grass    { background-color: #78c850; }
+    .electric { background-color: #f8d030; color: #333; }
+    .psychic  { background-color: #f85888; }
+    .normal   { background-color: #a8a878; }
+    .poison   { background-color: #a040a0; }
+    .rock     { background-color: #b8a038; }
+    .ghost    { background-color: #705898; }
+    .dragon   { background-color: #7038f8; }
+    .bug      { background-color: #a8b820; }
+    .fighting { background-color: #c03028; }
+    .ice      { background-color: #98d8d8; color: #333; }
+    .dark     { background-color: #705848; }
+    .fairy    { background-color: #ee99ac; }
+    .steel    { background-color: #b8b8d0; color: #333; }
+    .flying   { background-color: #a890f0; }
+    .ground   { background-color: #e0c068; color: #333; }
+  </style>
+
+</head>
+<body>
+
+  <h1> caça pokémon </h1>
+
+  <div class="busca">
+    <input
+      type="text"
+      id="campo-busca"
+      placeholder="Digite o nome ou número"
+    />
+    <button onclick="buscarPokemon()">procurar</button>
+  </div>
+
+  <p id="mensagem-erro">❌ Pokémon não encontrado. ESCREVE DIREITO BURRO!</p>
+
+  <div id="card-pokemon">
+    <img id="foto" src="" alt="Foto do Pokémon" />
+    <h2 id="nome"></h2>
+    <p id="numero"></p>
+    <div id="tipos"></div>
+  </div>
+
+
+  <script>
+    async function buscarPokemon() {
+
+      var nomeBuscado = document.getElementById("campo-busca").value.toLowerCase();
+
+      document.getElementById("card-pokemon").style.display = "none";
+      document.getElementById("mensagem-erro").style.display = "none";
+
+      if (nomeBuscado == "") {
+        alert("Digite um nome ou número primeiro!");
+        return;
+      }
+
+      var resposta = await fetch("https://pokeapi.co/api/v2/pokemon/" + nomeBuscado);
+
+      if (!resposta.ok) {
+        document.getElementById("mensagem-erro").style.display = "block";
+        return;
+      }
+
+      var dados = await resposta.json();
+
+      document.getElementById("foto").src =
+        dados.sprites.other["official-artwork"].front_default;
+
+      var nomePokemon = dados.name;
+      nomePokemon = nomePokemon.charAt(0).toUpperCase() + nomePokemon.slice(1);
+      document.getElementById("nome").textContent = nomePokemon;
+
+      var numeroPokemon = dados.id;
+      document.getElementById("numero").textContent =
+        "#" + String(numeroPokemon).padStart(3, "0");
+
+      var divTipos = document.getElementById("tipos");
+      divTipos.innerHTML = ""; 
+
+      for (var i = 0; i < dados.types.length; i++) {
+        var nomeTipo = dados.types[i].type.name;
+
+        var badge = document.createElement("span");
+        badge.className = "tipo " + nomeTipo;
+        badge.textContent = nomeTipo;
+
+        divTipos.appendChild(badge);
+      }
+
+      document.getElementById("card-pokemon").style.display = "block";
+    }
+
+    document.getElementById("campo-busca").addEventListener("keydown", function(evento) {
+      if (evento.key == "Enter") {
+        buscarPokemon();
+      }
+    });
+
+  </script>
+
+</body>
+</html>
